@@ -19,7 +19,7 @@ class DeepQNetwork:
             replace_target_iter=300,
             memory_size=2000,
             batch_size=128,
-            e_greedy_increment=0.001,
+            e_greedy_increment=0.0005,
             # learning_rate_decay=None,
             output_graph=False,
     ):

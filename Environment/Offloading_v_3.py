@@ -3,7 +3,7 @@
 """
 @author: youxinghui
 
-环境模型-2：SAQ-learning算法
+环境模型-3：JTOBA算法
 """
 
 import numpy as np
@@ -11,7 +11,7 @@ import math
 
 
 # one-step action model
-class OffloadingV2:
+class OffloadingV3:
     def __init__(self, request, user_n, task_t, f_mec, f_unit, f_ue, p_ue, bandwidth, w1, w2, reward_function='v_1'):
         self.user_n = user_n
         self.task_t = task_t
@@ -28,7 +28,7 @@ class OffloadingV2:
         # 观测空间: [计算资源分配情况]
         self.observation_n = self.user_n
         self.observation = np.zeros(self.observation_n, dtype=float)  # 观测
-        self.action_n = self.user_n  # 动作空间
+        self.action_n = 2 * self.user_n  # 动作空间
 
         # 系统状态量
         self.local_consumption = 0  # 本地计算系统消耗
@@ -50,11 +50,20 @@ class OffloadingV2:
     def step(self, action):
         reward = 0
         done = False
-        # 增加资源分配
+        increase = True
+        # 解析动作
+        if int(action % 2) == 1:  # 减少资源分配
+            increase = False
+        # 卸载人数
+        action = int(action/2)
         offload_user = self.offload_user
-        if math.isclose(self.observation[action], 0):
+        if math.isclose(self.observation[int(action/2)], 0) and increase:
             offload_user += 1
-        self.observation[action] += self.f_unit
+        # 资源变更
+        if increase:
+            self.observation[action] += self.f_unit
+        else:
+            self.observation[action] -= self.f_unit if self.observation[action] > 0 else self.observation[action]
         if sum(self.observation) > self.f_mec:
             done = True
             self.observation[action] -= self.f_unit  # 还原一次操作
@@ -64,9 +73,6 @@ class OffloadingV2:
         else:
             consumption = self.weight_sum()
             reward = self.current_consumption - consumption
-            if reward < 0:
-                reward = 0
-                consumption = self.current_consumption
             self.current_consumption = consumption
             self.offload_user = offload_user
         return self.observation, reward, done
@@ -87,6 +93,23 @@ class OffloadingV2:
                 energy = w_i * ((self.f_ue[i])**2)
                 consumption += self.w1[i] * delay + self.w2[i] * energy
         return consumption
+
+    # 奖励函数
+    def reward_calc(self, consumption):
+        reward = 0
+        if self.reward_function == 'v_1':
+            reward = self.current_consumption - consumption
+        elif self.reward_function == 'v_2':
+            reward = self.current_consumption - consumption
+            if reward > 0:
+                reward = 1
+            elif reward < 0:
+                reward = -1
+        elif self.reward_function == 'v_3':
+            reward = (self.current_consumption - consumption) / self.current_consumption
+        elif self.reward_function == 'v_4':
+            reward = 2 ** ((self.current_consumption - consumption) / 5)
+        return reward
 
     def reset_consumption_record(self):
         self.consumption_record = []
