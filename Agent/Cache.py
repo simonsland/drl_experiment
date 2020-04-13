@@ -84,6 +84,38 @@ class Cache:
         for elem in cache_v:
             self.cache[elem-1] = 1
 
+    # 基于经验流行度的缓存算法
+    def cache_update_experience(self, offload_v, popularity_v):
+        # 候选任务集
+        candidate = np.zeros(self.task_t, dtype=int)
+        for j in range(self.task_t):
+            if self.cache[j] == 1:
+                candidate[j] = 1
+        for i in range(len(offload_v)):
+            candidate[offload_v[i]] = 1
+        # 创建任务-流行度字典
+        dict = {}
+        for j in range(self.task_t):
+            if candidate[j] == 1:
+                dict[j] = popularity_v[j]
+        # 按照流行度对任务进行排序
+        sort = sorted(dict, key=lambda k: dict[k], reverse=True)
+        # 缓存流行度排序靠前的几个任务
+        idx = 0
+        length = len(sort)
+        cache_v = []
+        capacity_r = self.cache_capacity  # 剩余的缓存容量
+        while idx < length:
+            if capacity_r >= self.task[sort[idx]][0]:
+                cache_v.append(sort[idx])
+                capacity_r -= self.task[sort[idx]][0]
+                idx += 1
+            else:
+                break
+        self.cache = np.zeros(self.task_t, dtype=int)
+        for elem in cache_v:
+            self.cache[elem - 1] = 1
+
 
 
 

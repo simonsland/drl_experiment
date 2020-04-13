@@ -49,6 +49,7 @@ class LSTMRequestGenerator:
         self.task = self.task_generate()
         self.task_cnt, self.request_v = self.request_v_generator()
         self.request = self.request_generator()
+        self.popularity = self.popularity_generator()
 
     # 产生环境中的任务数据
     def task_generate(self):
@@ -67,7 +68,7 @@ class LSTMRequestGenerator:
 
     def request_v_generator(self):
         x = np.linspace(0, self.time_slot, self.time_slot)
-        cycle = self.time_slot / 5
+        cycle = self.time_slot / 10
         c = 2 * math.pi / cycle
         f = np.zeros([self.task_t, self.time_slot], dtype=float)
         r = np.zeros([self.task_t, self.time_slot], dtype=int)
@@ -97,8 +98,22 @@ class LSTMRequestGenerator:
                 request[j, i*2:(i+1)*2] = self.task[request_v[i], :]
         return request
 
+    def popularity_generator(self):
+        cnt_sum = np.zeros([self.time_slot, self.task_t], dtype=int)
+        for i in range(self.time_slot):
+            for j in range(self.task_t):
+                cnt_sum[i, j] = sum(self.task_cnt[0:i, j])
+        popularity = np.zeros([self.time_slot, self.task_t], dtype=float)
+        for i in range(self.time_slot):
+            for j in range(self.task_t):
+                popularity[i, j] = cnt_sum[i, j] / sum(cnt_sum[i, :])
+        return popularity
+
     def request_v_t(self, time):
         return self.request_v[time, :]
 
     def request_t(self, time):
         return self.request[time, :]
+
+    def popularity_t(self, time):
+        return self.popularity[time, :]

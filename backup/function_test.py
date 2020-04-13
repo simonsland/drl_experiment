@@ -195,8 +195,6 @@ print(np.sum(a==2))
 # for elem in cache_v:
 #     cache[elem-1] = 1
 # print(cache)
-offload = [0.1, 0, 0.1]
-cache = [1, 0, 1]
-for u in range(3):
-    if offload[u] > 0 and cache[u] == 1:
-        print(cache[u])
+a = [3, 2, 1]
+b = [1, 1, 1]
+print(abs(np.array(b) - np.array(a)))

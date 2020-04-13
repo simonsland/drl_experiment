@@ -80,8 +80,7 @@ class OffloadingV5:
             for u in range(self.user_n):
                 if self.observation[u] > 0 and self.cache[self.request_v[u]] == 1:
                     hit_cnt += 1
-            self.hit_rate.append(hit_cnt/self.user_n)
-            print(hit_cnt)
+            self.hit_rate.append(hit_cnt/self.offload_user)
             self.episodeCnt += 1
         return self.observation, reward, done
 
