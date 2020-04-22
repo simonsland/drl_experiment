@@ -41,7 +41,7 @@ class OffloadingV5:
         self.consumption_record.append(self.local_consumption)
         self.offload_record = []  # 系统卸载决策覆盖人数
         self.offload_v = [[0]*self.user_n]*10  # 系统卸载决策
-        self.hit_rate = []  # 缓存命中率
+        # self.hit_rate = []  # 缓存命中率
 
     def reset(self):
         # 重置环境状态
@@ -74,14 +74,14 @@ class OffloadingV5:
             self.observation[action] -= self.f_unit  # 还原一次操作
             self.offload_record.append(self.offload_user)
             self.consumption_record.append(self.current_consumption)
-            self.offload_v[self.episodeCnt % 10] = self.observation  # 存储最后10个回合的卸载决策
-            # 统计该回合的缓存命中率
-            hit_cnt = 0
-            for u in range(self.user_n):
-                if self.observation[u] > 0 and self.cache[self.request_v[u]] == 1:
-                    hit_cnt += 1
-            self.hit_rate.append(hit_cnt/self.offload_user)
+            self.offload_v[self.episodeCnt % 10] = self.observation  # 存储最后100个回合的卸载决策
             self.episodeCnt += 1
+            # 统计该回合的缓存命中率
+            # hit_cnt = 0
+            # for u in range(self.user_n):
+            #     if self.observation[u] > 0 and self.cache[self.request_v[u]] == 1:
+            #         hit_cnt += 1
+            # self.hit_rate.append(hit_cnt/self.offload_user)
         return self.observation, reward, done
 
     # 计算某状态的时延和功耗加权和

@@ -67,7 +67,7 @@ class OffloadingV1:
                 elif self.reward_function == 'Proposed_aside':
                     reward = self.current_consumption - consumption
                     if self.offload_user < offload_user:
-                        reward += 10
+                        reward += 8
                 elif self.reward_function == 'SAQ-learning':
                     reward = (self.current_consumption - consumption) / self.current_consumption
                 elif self.reward_function == 'JTOBA':

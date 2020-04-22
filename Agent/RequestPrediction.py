@@ -2,6 +2,9 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.font_manager as font_manager
+import pandas as pd
+import seaborn as sns
 import math
 from keras.models import Sequential
 from keras.layers import Dense
@@ -59,6 +62,29 @@ testPredict = model.predict(testX)
 # invert predictions
 trainPredict = scaler.inverse_transform(trainPredict)
 trainY = scaler.inverse_transform([trainY])
+# 训练数据拟合效果
+ch = font_manager.FontProperties(fname="/Library/Fonts/Arial Unicode.ttf")
+sns.set(style="whitegrid",font=ch.get_name())
+x = np.linspace(0, len(trainPredict), len(trainPredict))
+trainPredict = trainPredict[:, 0]
+trainY = trainY[0, :]
+# 对预测数据进行取整处理
+for i in range(len(trainPredict)):
+    if trainPredict[i] < 1:
+        trainPredict[i] = 1
+    else:
+        trainPredict[i] = round(trainPredict[i])
+data = {
+        "训练预测值": trainPredict,
+        "训练真实值": trainY,
+    }
+df = pd.DataFrame(data, index=x, columns=["训练预测值", "训练真实值"])
+sns.lineplot(data=df)
+plt.xlabel("时隙")
+plt.ylabel("任务请求数量")
+plt.show()
+
+# 测试数据
 testPredict = scaler.inverse_transform(testPredict)
 testY = scaler.inverse_transform([testY])
 

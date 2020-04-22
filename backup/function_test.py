@@ -138,8 +138,8 @@ import math
 # c.append(b)
 # print(c[1])
 
-a = np.array([1,2,2,3], dtype=int)
-print(np.sum(a==2))
+# a = np.array([1,2,2,3], dtype=int)
+# print(np.sum(a==2))
 
 # #设置seaborn默认格式
 # # x = np.linspace(0,100,100)
@@ -195,6 +195,88 @@ print(np.sum(a==2))
 # for elem in cache_v:
 #     cache[elem-1] = 1
 # print(cache)
-a = [3, 2, 1]
-b = [1, 1, 1]
-print(abs(np.array(b) - np.array(a)))
+
+from Environment.Request import LSTMRequestGenerator
+import matplotlib.pyplot as plt
+import matplotlib.font_manager as font_manager
+import seaborn as sns
+import pandas as pd
+#
+# ch = font_manager.FontProperties(fname="/Library/Fonts/Arial Unicode.ttf")
+# sns.set(style='whitegrid', font=ch.get_name())
+#
+# task_t=4
+# time_slot=100
+# x = np.linspace(0, time_slot, time_slot)
+# cycle = time_slot / 2
+# c = 2 * math.pi / cycle
+# f = np.zeros([task_t, time_slot], dtype=float)
+# sns.set(style='whitegrid', font=ch.get_name())
+# # 任务流行度演化
+# plt.subplot(1,2,1)
+# for i in range(task_t):
+#     y = 0.3 * np.sin(c*(x+i*cycle/task_t)) + 0.5
+#     f[i, :] = y
+# data = {
+#         "0": f[0,:],
+#         "1": f[1,:],
+#         "2": f[2,:],
+#         "3": f[3,:]
+#     }
+# df = pd.DataFrame(data, index=x, columns=["0", "1", "2", "3"])
+# sns.lineplot(data=df)
+# plt.xlabel("时隙")
+# plt.ylabel("流行度演化")
+# # 任务请求次数
+# # time_slot = 100
+# # task_t = 10
+# user_n = 10
+# x = np.linspace(0, time_slot, time_slot)
+# cycle = time_slot / 2
+# c = 2 * math.pi / cycle
+# f = np.zeros([task_t, time_slot], dtype=float)
+# r = np.zeros([task_t, time_slot], dtype=int)
+# for i in range(task_t):
+#     y = 0.3 * np.sin(c*(x+i*cycle/task_t)) + 0.5
+#     f[i, :] = y
+#     # plt.plot(x, y)
+# for j in range(time_slot):
+#     for i in range(task_t):
+#         r[i, j] = round(f[i, j] / sum(f[:, j]) * user_n)
+# plt.subplot(1,2,2)
+# data = {
+#         "0": r[0,:]
+#     }
+# df = pd.DataFrame(data, index=x, columns=["0"])
+# sns.lineplot(data=df)
+# plt.xlabel("时隙")
+# plt.ylabel("任务请求数量")
+# plt.show()
+
+# 缓存对比数据（流行度预测）
+# s_cache_v1 = [755.8202380952382, 689.7999999999998,  672.05, 720.0166666666668, 710.55, 690.4833333333332, 666.9999999999999, 718.5166666666668, 697.5666666666666, 705.0]
+# s_cache_v3 = [757.5595238095237, 695.6666666666666,  679.5, 733.85, 726.5333333333333, 704.5833333333334, 679.0, 736.6166666666667, 722.1666666666667, 738.4833333333333]
+# s_cache_none = [755.2234126984126, 748.8357142857144, 779.225, 798.4833333333333, 794.5666666666666, 794.5095238095238, 790.6738095238095, 754.1666666666667, 730.6190476190476, 756.0285714285715]
+x = [1,2,3,4,5,6,7,8,9,10]
+
+s_cache_v1 = [734.25, 680.3999999999999, 696.95, 724.7, 730.25, 721.8666666666667, 708.75, 686.85, 669.1166666666664, 680.4333333333334]
+s_cache_v2 = [738.7476190476192, 721.7166666666666, 721.9666666666666, 740.0333333333334, 733.9000000000001, 730.7666666666667, 730.7500000000001, 690.05, 676.2166666666666, 677.25]
+
+# # 条形图
+ch = font_manager.FontProperties(fname="/Library/Fonts/Arial Unicode.ttf")
+sns.set(style="whitegrid",font=ch.get_name())
+# b1 = plt.bar(x=x, height=s_cache_v1, width=0.4)
+# b3 = plt.bar(x=x, height=list(np.array(s_cache_v3) - np.array(s_cache_v1)), width=0.4, bottom=s_cache_v1)
+# plt.legend([b1,b3], ["proposed", "experience"], loc='upper right')
+# plt.ylim(600, 850)
+# plt.xlabel("时间步")
+# plt.ylabel("系统消耗")
+label = [1,2,3,4,5,6,7,8,9,10]
+b5 = plt.bar(x=x, height=s_cache_v1, width=0.2)
+b6 = plt.bar(x=[i + 0.2 for i in x], height=s_cache_v2, width=0.2)
+plt.xticks([i + 0.2 for i in x], label)
+plt.legend([b5, b6], ["proposed", "prediction-only"], loc='upper right')
+plt.ylim(600, 850)
+plt.xlabel("时间步")
+plt.ylabel("系统消耗")
+plt.show()

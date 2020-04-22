@@ -23,34 +23,24 @@ class Cache:
         dict = {}
         for j in range(self.task_t):
             if candidate[j] == 1:
-                dict[j] = self.task[j][0] * np.sum(request_v == j)
+                dict[j] = [np.sum(request_v == j), self.task[j][0]]
         # 按照期望收益对任务进行排序
-        sort = sorted(dict, key=lambda k: dict[k], reverse=True)
-        # 通过双指针算法得到满足缓存容量情况下的最大任务序列
-        l = 0
-        r = 0
+        sort = sorted(dict, key=lambda k: (dict[k][0], dict[k][1]), reverse=True)
+        # 缓存期望收益排序靠前的几个任务
+        idx = 0
         length = len(sort)
-        max_benefit = 0
-        benefit_tmp = 0
         cache_v = []
-        cache_tmp = []
         capacity_r = self.cache_capacity  # 剩余的缓存容量
-        while l < length:
-            while r < length and capacity_r >= self.task[sort[r]][0]:
-                cache_tmp.append(sort[r])
-                benefit_tmp += dict[sort[r]]
-                capacity_r -= self.task[sort[r]][0]
-                r += 1
-            if benefit_tmp > max_benefit or (math.isclose(benefit_tmp, max_benefit) and len(cache_tmp) > len(cache_v)):
-                max_benefit = benefit_tmp
-                cache_v = cache_tmp.copy()
-            capacity_r += self.task[sort[l]][0]
-            cache_tmp.remove(sort[l])
-            benefit_tmp -= dict[sort[l]]
-            l += 1
+        while idx < length:
+            if capacity_r >= self.task[sort[idx]][0]:
+                cache_v.append(sort[idx])
+                capacity_r -= self.task[sort[idx]][0]
+                idx += 1
+            else:
+                break
         self.cache = np.zeros(self.task_t, dtype=int)
         for elem in cache_v:
-            self.cache[elem-1] = 1
+            self.cache[elem] = 1
 
     # 流行度优先的缓存算法
     def cache_update(self, offload_v, request_v):
@@ -82,7 +72,7 @@ class Cache:
                 break
         self.cache = np.zeros(self.task_t, dtype=int)
         for elem in cache_v:
-            self.cache[elem-1] = 1
+            self.cache[elem] = 1
 
     # 基于经验流行度的缓存算法
     def cache_update_experience(self, offload_v, popularity_v):
@@ -114,7 +104,7 @@ class Cache:
                 break
         self.cache = np.zeros(self.task_t, dtype=int)
         for elem in cache_v:
-            self.cache[elem - 1] = 1
+            self.cache[elem] = 1
 
 
 

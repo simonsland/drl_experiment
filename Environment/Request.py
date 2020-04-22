@@ -52,16 +52,18 @@ class LSTMRequestGenerator:
         self.popularity = self.popularity_generator()
 
     # 产生环境中的任务数据
-    def task_generate(self):
+    def task_generate(self, data_size=30, sigma=15):
         task = np.zeros([2, self.task_t], dtype=int)
         # 任务上传数据量
-        upload_data = np.random.normal(30, 5, self.task_t)
+        upload_data = np.random.normal(data_size, sigma, self.task_t)
         while sum(upload_data < 0):  # 确保生成的数据中不包含负值
-            upload_data = np.random.normal(30, 5, self.task_t)
+            upload_data = np.random.normal(data_size, sigma, self.task_t)
+        print("传输量: ", upload_data)
         # 任务计算量
         cpu_cycle = np.random.normal(100, 20, self.task_t)
         while sum(cpu_cycle < 0):
             cpu_cycle = np.random.normal(100, 20, self.task_t)
+        print("计算量: ", cpu_cycle)
         task[0, :] = upload_data
         task[1, :] = cpu_cycle
         return np.transpose(task)
