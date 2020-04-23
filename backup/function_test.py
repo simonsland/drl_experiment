@@ -257,26 +257,28 @@ import pandas as pd
 # s_cache_v1 = [755.8202380952382, 689.7999999999998,  672.05, 720.0166666666668, 710.55, 690.4833333333332, 666.9999999999999, 718.5166666666668, 697.5666666666666, 705.0]
 # s_cache_v3 = [757.5595238095237, 695.6666666666666,  679.5, 733.85, 726.5333333333333, 704.5833333333334, 679.0, 736.6166666666667, 722.1666666666667, 738.4833333333333]
 # s_cache_none = [755.2234126984126, 748.8357142857144, 779.225, 798.4833333333333, 794.5666666666666, 794.5095238095238, 790.6738095238095, 754.1666666666667, 730.6190476190476, 756.0285714285715]
-x = [1,2,3,4,5,6,7,8,9,10]
-
-s_cache_v1 = [734.25, 680.3999999999999, 696.95, 724.7, 730.25, 721.8666666666667, 708.75, 686.85, 669.1166666666664, 680.4333333333334]
-s_cache_v2 = [738.7476190476192, 721.7166666666666, 721.9666666666666, 740.0333333333334, 733.9000000000001, 730.7666666666667, 730.7500000000001, 690.05, 676.2166666666666, 677.25]
-
-# # 条形图
-ch = font_manager.FontProperties(fname="/Library/Fonts/Arial Unicode.ttf")
-sns.set(style="whitegrid",font=ch.get_name())
-# b1 = plt.bar(x=x, height=s_cache_v1, width=0.4)
-# b3 = plt.bar(x=x, height=list(np.array(s_cache_v3) - np.array(s_cache_v1)), width=0.4, bottom=s_cache_v1)
-# plt.legend([b1,b3], ["proposed", "experience"], loc='upper right')
+# x = [1,2,3,4,5,6,7,8,9,10]
+#
+# s_cache_v1 = [734.25, 680.3999999999999, 696.95, 724.7, 730.25, 721.8666666666667, 708.75, 686.85, 669.1166666666664, 680.4333333333334]
+# s_cache_v2 = [738.7476190476192, 721.7166666666666, 721.9666666666666, 740.0333333333334, 733.9000000000001, 730.7666666666667, 730.7500000000001, 690.05, 676.2166666666666, 677.25]
+#
+# # # 条形图
+# ch = font_manager.FontProperties(fname="/Library/Fonts/Arial Unicode.ttf")
+# sns.set(style="whitegrid",font=ch.get_name())
+# # b1 = plt.bar(x=x, height=s_cache_v1, width=0.4)
+# # b3 = plt.bar(x=x, height=list(np.array(s_cache_v3) - np.array(s_cache_v1)), width=0.4, bottom=s_cache_v1)
+# # plt.legend([b1,b3], ["proposed", "experience"], loc='upper right')
+# # plt.ylim(600, 850)
+# # plt.xlabel("时间步")
+# # plt.ylabel("系统消耗")
+# label = [1,2,3,4,5,6,7,8,9,10]
+# b5 = plt.bar(x=x, height=s_cache_v1, width=0.2)
+# b6 = plt.bar(x=[i + 0.2 for i in x], height=s_cache_v2, width=0.2)
+# plt.xticks([i + 0.2 for i in x], label)
+# plt.legend([b5, b6], ["proposed", "prediction-only"], loc='upper right')
 # plt.ylim(600, 850)
 # plt.xlabel("时间步")
 # plt.ylabel("系统消耗")
-label = [1,2,3,4,5,6,7,8,9,10]
-b5 = plt.bar(x=x, height=s_cache_v1, width=0.2)
-b6 = plt.bar(x=[i + 0.2 for i in x], height=s_cache_v2, width=0.2)
-plt.xticks([i + 0.2 for i in x], label)
-plt.legend([b5, b6], ["proposed", "prediction-only"], loc='upper right')
-plt.ylim(600, 850)
-plt.xlabel("时间步")
-plt.ylabel("系统消耗")
-plt.show()
+# plt.show()
+
+print(round(2.3))
