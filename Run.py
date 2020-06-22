@@ -104,72 +104,38 @@ def extract_last_n_average(record, n):
 
 
 if __name__ == "__main__":
-# 用户数为[8, 12, 16，20]
-    # 系统消耗
-    s_local = []
-    s_proposed = []
-    # s_jtoba = []
-    s_random = []
-    f_mec = 20
-    bandwidth = 20
-    for user_n in [8, 12, 16, 20]:
-        w1 = np.array([1] * user_n)
-        w2 = np.array([0] * user_n)
-        f_ue = np.array([2] * user_n)
-        p_ue = np.array([0.3] * user_n)
-        gen = RequestGenerator(task_t=10, user_n=user_n)
-        # 算法I-Proposed Algorithm
-        proposed = OffloadingV1(request=gen.request, user_n=user_n, f_mec=f_mec, f_unit=1,
-                             f_ue=f_ue, p_ue=p_ue, bandwidth=bandwidth, w1=w1, w2=w2, reward_function="Proposed")
-        dqn_v1 = DeepQNetwork(proposed.action_n, proposed.observation_n, learning_rate=0.001, reward_decay=0.9,
-                              e_greedy=0.9, replace_target_iter=100, memory_size=2000, output_graph=True)
-        train(proposed, dqn_v1, 1, 500, 500)
-        # 提取最后10次结果中的统计量
-        s_local.append(proposed.consumption_record[0])
-        consumption = smooth_average(proposed.consumption_record, 10)
-        s_proposed.append(extract_last_n_min(consumption, 10))
-        # # 算法II-SAQ-learning
-        # saq_learning = OffloadingV1(request=gen.request, user_n=user_n, f_mec=f_mec, f_unit=1,
-        #                               f_ue=f_ue, p_ue=p_ue, bandwidth=bandwidth, w1=w1, w2=w2, reward_function="SAQ-learning")
-        # dqn_v2 = DeepQNetwork(saq_learning.action_n, saq_learning.observation_n, learning_rate=0.001, reward_decay=0.9,
-        #                       e_greedy=0.9, replace_target_iter=100, memory_size=2000, output_graph=True)
-        # train(saq_learning, dqn_v2, 1, 1000, 500)
-        # consumption = smooth_average(saq_learning.consumption_record, 10)
-        # s_saq.append(extract_last_n_min(consumption, 10))
-        # 算法III-JTOBA
-        # JTOBA = OffloadingV1(request=gen.request, user_n=user_n, f_mec=f_mec, f_unit=1,
-        #                             f_ue=f_ue, p_ue=p_ue, bandwidth=bandwidth, w1=w1, w2=w2, reward_function="JTOBA")
-        # dqn_v3 = DeepQNetwork(JTOBA.action_n, JTOBA.observation_n, learning_rate=0.001, reward_decay=0.9,
-        #                       e_greedy=0.9, replace_target_iter=100, memory_size=2000, output_graph=True)
-        # train(JTOBA, dqn_v3, 1, 500, 500)
-        # consumption = smooth_average(JTOBA.consumption_record, 10)
-        # s_jtoba.append(extract_last_n_average(consumption, 100))
-        # 算法IV-Random
-        random = OffloadingV1(request=gen.request, user_n=user_n, f_mec=f_mec, f_unit=1,
-                                f_ue=f_ue, p_ue=p_ue, bandwidth=bandwidth, w1=w1, w2=w2)
-        random_agent = Random(random.action_n)
-        run(random, random_agent, 500)  # random算法无须训练
-        consumption = smooth_average(random.consumption_record, 10)
-        s_random.append(extract_last_n_average(consumption, 10))
-        print("Proposed:", s_proposed)
-        print("Local:", s_local)
-        # print("Proposed:", s_jtoba)
-        print("Random:", s_random)
+# 用户数为20的卸载收敛性分析
+    w1 = np.array([1]*20)
+    w2 = np.array([0]*20)
+    f_ue = np.array([2]*20)
+    p_ue = np.array([0.3]*20)
+    gen = RequestGenerator(task_t=40, user_n=20)
+    # 查看分配的均衡情况
+    convergence = OffloadingV1(user_n=20, request=gen.request, f_mec=40, f_unit=1, f_ue=f_ue, p_ue=p_ue, bandwidth=20, w1=w1, w2=w2)
+    dqn = DeepQNetwork(convergence.action_n, convergence.observation_n, learning_rate=0.001, reward_decay=0.9,
+                   e_greedy=0.9, replace_target_iter=100, memory_size=2000, output_graph=True)
+    train(convergence, dqn, 1, 2000, 500)
+    loss = dqn.loss_record
+    # # 损失分析
+    # # 设置中文字体
+    # ch = font_manager.FontProperties(fname="/Library/Fonts/Arial Unicode.ttf")
+    # sns.set(style="whitegrid", font=ch.get_name())
+    # data = {
+    #     "迭代次数": np.linspace(0, len(loss), len(loss)),
+    #     "损失变化": loss
+    # }
+    # df = pd.DataFrame(data)
+    # sns.lineplot(x="迭代次数", y="损失变化", data=df)
+    # plt.show()
+    # 累积奖励分析
+    reward = smooth_average(convergence.consumption_record, 10)
     # 设置中文字体
     ch = font_manager.FontProperties(fname="/Library/Fonts/Arial Unicode.ttf")
-    sns.set(style='whitegrid', font=ch.get_name())
+    sns.set(style="whitegrid", font=ch.get_name())
     data = {
-        "Proposed": s_proposed,
-        "Local": s_local,
-        # "JTOBA": s_jtoba,
-        "Random": s_random,
+        "迭代决策回合": np.linspace(0, len(reward), len(reward)),
+        "累积奖励变化": reward
     }
-    print("Proposed:", s_proposed)
-    print("Local:", s_local)
-    # print("Proposed:", s_jtoba)
-    print("Random:", s_random)
-    df = pd.DataFrame(data, index=[8, 12, 16, 20], columns=["Proposed", "Local", "Random"])
-    sns.lineplot(data=df, markers=True)
-    plt.xlabel("小区用户数")
-    plt.ylabel("系统消耗")
+    df = pd.DataFrame(data)
+    sns.lineplot(x="迭代决策回合", y="累积奖励变化", data=df)
     plt.show()

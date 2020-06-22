@@ -4,70 +4,65 @@
 #     w2 = np.array([0]*20)
 #     f_ue = np.array([2]*20)
 #     p_ue = np.array([0.3]*20)
+#     gen = RequestGenerator(task_t=40, user_n=20)
 #     # 查看分配的均衡情况
-#     convergence = OffloadingV1(user_n=20, task_t=40, f_mec=40, f_unit=1, f_ue=f_ue, p_ue=p_ue, bandwidth=20, w1=w1, w2=w2)
+#     convergence = OffloadingV1(user_n=20, request=gen.request, f_mec=40, f_unit=1, f_ue=f_ue, p_ue=p_ue, bandwidth=20, w1=w1, w2=w2)
 #     dqn = DeepQNetwork(convergence.action_n, convergence.observation_n, learning_rate=0.001, reward_decay=0.9,
 #                    e_greedy=0.9, replace_target_iter=100, memory_size=2000, output_graph=True)
 #     train(convergence, dqn, 1, 2000, 500)
 #     loss = dqn.loss_record
-#     # 损失分析
+#     # # 损失分析
+#     # # 设置中文字体
+#     # ch = font_manager.FontProperties(fname="/Library/Fonts/Arial Unicode.ttf")
+#     # sns.set(style="whitegrid", font=ch.get_name())
+#     # data = {
+#     #     "迭代次数": np.linspace(0, len(loss), len(loss)),
+#     #     "损失变化": loss
+#     # }
+#     # df = pd.DataFrame(data)
+#     # sns.lineplot(x="迭代次数", y="损失变化", data=df)
+#     # plt.show()
+#     # 累积奖励分析
+#     reward = smooth_average(convergence.consumption_record, 10)
 #     # 设置中文字体
 #     ch = font_manager.FontProperties(fname="/Library/Fonts/Arial Unicode.ttf")
-#     sns.set(font=ch.get_name())
+#     sns.set(style="whitegrid", font=ch.get_name())
 #     data = {
-#         "迭代次数": np.linspace(0, len(loss), len(loss)),
-#         "损失变化": loss
-#     }
-#     df = pd.DataFrame(data)
-#     sns.lineplot(x="迭代次数", y="损失变化", data=df)
-#     plt.show()
-# 累积奖励分析
-#     reward = smooth(convergence.consumption_record, 10)
-#     # 设置中文字体
-#     ch = font_manager.FontProperties(fname="/Library/Fonts/Arial Unicode.ttf")
-#     sns.set(font=ch.get_name())
-#     data = {
-#         "迭代次数": np.linspace(0, len(reward), len(reward)),
+#         "迭代决策回合": np.linspace(0, len(reward), len(reward)),
 #         "累积奖励变化": reward
 #     }
 #     df = pd.DataFrame(data)
-#     sns.lineplot(x="迭代次数", y="累积奖励变化", data=df)
+#     sns.lineplot(x="迭代决策回合", y="累积奖励变化", data=df)
 #     plt.show()
 
 # -----------------------------卸载算法对比分析-----------------------------
-# 用户数为20的动作设计效果对比实验
+# # 用户数为20的动作设计效果对比实验
 #     w1 = np.array([1]*20)
 #     w2 = np.array([0]*20)
 #     f_ue = np.array([2]*20)
 #     p_ue = np.array([0.3]*20)
-#     gen = RequestGenerator(task_t=10, user_n=20)
+#     gen = RequestGenerator(task_t=40, user_n=20)
 #     # 算法I-Proposed Alogorithm
 #     proposed = OffloadingV1(request=gen.request, user_n=20, f_mec=40, f_unit=1,
 #                                   f_ue=f_ue, p_ue=p_ue, bandwidth=20, w1=w1, w2=w2, reward_function="Proposed")
 #     dqn_v1 = DeepQNetwork(proposed.action_n, proposed.observation_n, learning_rate=0.001, reward_decay=0.9,
 #                    e_greedy=0.9, replace_target_iter=100, memory_size=2000, output_graph=True)
 #     train(proposed, dqn_v1, 1, 2000, 500)
-#     consumption_v1 = smooth(proposed.consumption_record, 10)
+#     consumption_v1 = smooth_average(proposed.consumption_record, 10)
 #     # 算法II-SAQ-learning
 #     saq_learning = OffloadingV1(request=gen.request, user_n=20, f_mec=40, f_unit=1,
 #                                   f_ue=f_ue, p_ue=p_ue, bandwidth=20, w1=w1, w2=w2, reward_function="SAQ-learning")
 #     dqn_v2 = DeepQNetwork(saq_learning.action_n, saq_learning.observation_n, learning_rate=0.001, reward_decay=0.9,
 #                           e_greedy=0.9, replace_target_iter=100, memory_size=2000, output_graph=True)
 #     train(saq_learning, dqn_v2, 1, 2000, 500)
-#     consumption_v2 = smooth(saq_learning.consumption_record, 10)
+#     consumption_v2 = smooth_average(saq_learning.consumption_record, 10)
 #     # 算法III-JTOBA
 #     JTOBA = OffloadingV1(request=gen.request, user_n=20, f_mec=40, f_unit=1,
 #                                 f_ue=f_ue, p_ue=p_ue, bandwidth=20, w1=w1, w2=w2, reward_function="JTOBA")
 #     dqn_v3 = DeepQNetwork(JTOBA.action_n, JTOBA.observation_n, learning_rate=0.001, reward_decay=0.9,
 #                           e_greedy=0.9, replace_target_iter=100, memory_size=2000, output_graph=True)
 #     train(JTOBA, dqn_v3, 1, 2000, 500)
-#     consumption_v3 = smooth(JTOBA.consumption_record, 10)
-#     # 算法IV-Random
-#     random = OffloadingV1(request=gen.request, user_n=20, f_mec=40, f_unit=1,
-#                             f_ue=f_ue, p_ue=p_ue, bandwidth=20, w1=w1, w2=w2)
-#     random_agent = Random(random.action_n)
-#     run(random, random_agent, 2000)  # random算法无须训练
-#     consumption_v4 = smooth(random.consumption_record, 10)
+#     consumption_v3 = smooth_average(JTOBA.consumption_record, 10)
 #     # 设置中文字体
 #     ch = font_manager.FontProperties(fname="/Library/Fonts/Arial Unicode.ttf")
 #     sns.set(style='whitegrid', font=ch.get_name())
@@ -75,9 +70,8 @@
 #         "Proposed": consumption_v1,
 #         "SAQ-learning": consumption_v2,
 #         "JTOBA": consumption_v3,
-#         "Random": consumption_v4
 #     }
-#     df = pd.DataFrame(data, index=np.linspace(0, len(consumption_v1), len(consumption_v1)), columns=["Proposed", "SAQ-learning", "JTOBA", "Random"])
+#     df = pd.DataFrame(data, index=np.linspace(0, len(consumption_v1), len(consumption_v1)), columns=["Proposed", "SAQ-learning", "JTOBA"])
 #     sns.lineplot(data=df)
 #     plt.xlabel("迭代次数")
 #     plt.ylabel("系统消耗")
@@ -447,8 +441,8 @@
 #     user_n = 20
 #     task_t = 10
 #     gen = LSTMRequestGenerator(task_t=task_t, user_n=user_n, time_slot=100)
-#     cache_v1 = Cache(cache_capacity=150, task=gen.task, task_t=task_t, user_n=user_n)  # 所提缓存策略
-#     cache_v2 = Cache(cache_capacity=150, task=gen.task, task_t=10, user_n=20)  # 只考虑任务量的缓存策略
+#     cache_v1 = Cache(cache_capacity=200, task=gen.task, task_t=task_t, user_n=user_n)  # 所提缓存策略
+#     cache_v2 = Cache(cache_capacity=200, task=gen.task, task_t=task_t, user_n=user_n)  # 只考虑流行度的缓存策略
 #     # cache_v3 = Cache(cache_capacity=150, task=gen.task, task_t=task_t, user_n=user_n)  # 考虑经验流行度的缓存策略
 #     # 10个时隙
 #     s_cache_v1 = []
@@ -468,7 +462,7 @@
 #         cache_aside_v1 = OffloadingV5(request_v=request_v, request=request, cache=cache_v1.cache, user_n=user_n, f_mec=2*user_n, f_unit=1,
 #                               f_ue=f_ue, p_ue=p_ue, bandwidth=user_n, w1=w1, w2=w2)
 #         dqn_v1 = DeepQNetwork(cache_aside_v1.action_n, cache_aside_v1.observation_n, learning_rate=0.001, reward_decay=0.9,
-#                        e_greedy=0.9, replace_target_iter=100, memory_size=2000, output_graph=True)
+#                        e_greedy=0.9, replace_target_iter=100, memory_size=2000, output_graph=False)
 #         train(cache_aside_v1, dqn_v1, 1, 500, 500)
 #         # 更新缓存
 #         # 最小消耗位置索引
@@ -489,7 +483,7 @@
 #         cache_aside_v2 = OffloadingV5(request_v=request_v, request=request, cache=cache_v2.cache, user_n=user_n, f_mec=2*user_n, f_unit=1,
 #                               f_ue=f_ue, p_ue=p_ue, bandwidth=user_n, w1=w1, w2=w2)
 #         dqn_v2 = DeepQNetwork(cache_aside_v2.action_n, cache_aside_v2.observation_n, learning_rate=0.001, reward_decay=0.9,
-#                        e_greedy=0.9, replace_target_iter=100, memory_size=2000, output_graph=True)
+#                        e_greedy=0.9, replace_target_iter=100, memory_size=2000, output_graph=False)
 #         train(cache_aside_v2, dqn_v2, 1, 500, 500)
 #         # 更新缓存
 #         # 最小消耗位置索引
@@ -558,7 +552,7 @@
 #     b5 = plt.bar(x=x, height=s_cache_v1, width=0.2)
 #     b6 = plt.bar(x=[i + 0.2 for i in x], height=s_cache_v2, width=0.2)
 #     plt.xticks([i + 0.2 for i in x], label)
-#     plt.legend([b5, b6], ["size-aware", "popularity-only"], loc='upper right')
+#     plt.legend([b5, b6], ["proposed", "prediction-only"], loc='upper right')
 #     plt.ylim(600, 850)
 #     plt.xlabel("时间步")
 #     plt.ylabel("系统消耗")
@@ -573,8 +567,8 @@
 # s_cache_v1:  [734.25, 680.3999999999999, 696.95, 724.7, 730.25, 721.8666666666667, 708.75, 686.85, 669.1166666666664, 680.4333333333334]
 # s_cache_v2:  [738.7476190476192, 721.7166666666666, 721.9666666666666, 740.0333333333334, 733.9000000000001, 730.7666666666667, 730.7500000000001, 690.05, 676.2166666666666, 677.25]
 
-# -------------------- 任务模型参数的影响 ----------------
-# 用户数为20的缓存辅助效果实验
+# -------------------- 缓存容量参数的影响 ----------------
+# # 用户数为20的缓存容量参数实验
 #     w1 = np.array([1]*20)
 #     w2 = np.array([0]*20)
 #     f_ue = np.array([2]*20)
@@ -582,80 +576,172 @@
 #     user_n = 20
 #     task_t = 10
 #     gen = LSTMRequestGenerator(task_t=task_t, user_n=user_n, time_slot=100)
-#     cache_v1 = Cache(cache_capacity=150, task=gen.task, task_t=task_t, user_n=user_n)  # 所提缓存策略
-#     cache_v2 = Cache(cache_capacity=150, task=gen.task, task_t=10, user_n=20)  # 只考虑流行度的缓存策略
 #     s_cache_v1 = []
 #     s_cache_v2 = []
-#     for sigma in [5, 10, 15, 20]:
-#         print("sigma开始: ", sigma)
+#     s_cache_v3 = []
+#     for capacity in [50, 100, 150, 200, 250, 300]:
+#         print("开始: ", capacity)
 #         # 修改任务生成器中的任务上传数据量
-#         gen.task = gen.task_generate(sigma=sigma)
-#         time_slot = 2
+#         cache_v1 = Cache(cache_capacity=capacity, task=gen.task, task_t=task_t, user_n=user_n)  # 所提缓存策略
+#         cache_v2 = Cache(cache_capacity=capacity, task=gen.task, task_t=task_t, user_n=user_n)  # 不考虑任务量
+#         cache_v3 = Cache(cache_capacity=capacity, task=gen.task, task_t=task_t, user_n=user_n)  # 不考虑流行度演变
 #         consumption_v1 = 0
 #         consumption_v2 = 0
-#         for t in range(time_slot):
+#         consumption_v3 = 0
+#         pre_train = 500
+#         episode = 1000
+#         process_n = 20
+#         for t in [40]:
 #             print("时隙开始")
 #             request_v = gen.request_v_t(t)
 #             request = gen.request_t(t)
 #             print("request_v: ", request_v)
-#             print("cache_v1: ", cache_v1.cache)
-#             print("cache_v2: ", cache_v2.cache)
-#             # ---------------基于请求次数和任务量-------------
+#             # ---------------基于请求模式和任务量-------------
+#             offload_t = []
+#             cache_v1.cache_update_size(offload_t, gen.request_v_t(t))
 #             cache_aside_v1 = OffloadingV5(request_v=request_v, request=request, cache=cache_v1.cache, user_n=user_n, f_mec=2*user_n, f_unit=1,
 #                                   f_ue=f_ue, p_ue=p_ue, bandwidth=user_n, w1=w1, w2=w2)
 #             dqn_v1 = DeepQNetwork(cache_aside_v1.action_n, cache_aside_v1.observation_n, learning_rate=0.001, reward_decay=0.9,
 #                            e_greedy=0.9, replace_target_iter=100, memory_size=2000, output_graph=True)
-#             train(cache_aside_v1, dqn_v1, 1, 500, 500)
+#             train(cache_aside_v1, dqn_v1, 1, episode, pre_train)
 #             # 更新缓存
 #             # 最小消耗位置索引
-#             consumption = extract_last_n(cache_aside_v1.consumption_record, 10)
-#             idx = consumption.index(min(consumption))
-#             # 最小消耗卸载决策向量
-#             offload_v = cache_aside_v1.offload_v[idx]
-#             offload_t = []
-#             for i in range(user_n):
-#                 if offload_v[i] > 0:
-#                     offload_t.append(request_v[i])
-#             # 更新缓存
-#             print("offload_v1:", offload_t)
-#             cache_v1.cache_update_size(offload_t, gen.request_v_t(t+1))
-#             consumption_v1 = consumption[idx]
-#             # ----------基于请求次数的缓存----------
+#             consumption_v1 = extract_last_n_average(cache_aside_v1.consumption_record, process_n)
+#             # ----------不考虑任务量----------
+#             cache_v2.cache_update(offload_t, gen.request_v_t(t))
 #             cache_aside_v2 = OffloadingV5(request_v=request_v, request=request, cache=cache_v2.cache, user_n=user_n, f_mec=2*user_n, f_unit=1,
 #                                   f_ue=f_ue, p_ue=p_ue, bandwidth=user_n, w1=w1, w2=w2)
 #             dqn_v2 = DeepQNetwork(cache_aside_v2.action_n, cache_aside_v2.observation_n, learning_rate=0.001, reward_decay=0.9,
 #                            e_greedy=0.9, replace_target_iter=100, memory_size=2000, output_graph=True)
-#             train(cache_aside_v2, dqn_v2, 1, 500, 500)
-#             # 更新缓存
-#             # 最小消耗位置索引
-#             consumption = extract_last_n(cache_aside_v2.consumption_record, 10)
-#             idx = consumption.index(min(consumption))
-#             # 最小消耗卸载决策向量
-#             offload_v = cache_aside_v2.offload_v[idx]
-#             offload_t = []
-#             for i in range(20):
-#                 if offload_v[i] > 0:
-#                     offload_t.append(request_v[i])
-#             # 更新缓存
-#             print("offload_v2:", offload_t)
-#             cache_v2.cache_update(offload_t, gen.request_v_t(t + 1))
-#             consumption_v2 = consumption[idx]
-#             print("consumption_v1: ", consumption_v1)
-#             print("consumption_v2: ", consumption_v2)
+#             train(cache_aside_v2, dqn_v2, 1, episode, pre_train)
+#             consumption_v2 = extract_last_n_average(cache_aside_v2.consumption_record, process_n)
+#             # ----------经验流行度----------
+#             cache_v3.cache_update_experience(offload_t, gen.popularity_t(t))
+#             cache_aside_v3 = OffloadingV5(request_v=request_v, request=request, cache=cache_v3.cache, user_n=user_n,
+#                                           f_mec=2 * user_n, f_unit=1,
+#                                           f_ue=f_ue, p_ue=p_ue, bandwidth=user_n, w1=w1, w2=w2)
+#             dqn_v3 = DeepQNetwork(cache_aside_v3.action_n, cache_aside_v3.observation_n, learning_rate=0.001,
+#                                   reward_decay=0.9,
+#                                   e_greedy=0.9, replace_target_iter=100, memory_size=2000, output_graph=True)
+#             train(cache_aside_v3, dqn_v3, 1, episode, pre_train)
+#             consumption_v3 = extract_last_n_average(cache_aside_v3.consumption_record, process_n)
 #             print("时隙结束")
+#             print("cache_v1: ", cache_v1.cache)
+#             print("cache_v2: ", cache_v2.cache)
+#             print("cache_v3: ", cache_v3.cache)
 #         s_cache_v1.append(consumption_v1)
 #         s_cache_v2.append(consumption_v2)
-#         print("sigma结束: ", sigma)
+#         s_cache_v3.append(consumption_v3)
+#         print("s_cache_v1: ", s_cache_v1)
+#         print("s_cache_v2: ", s_cache_v2)
+#         print("s_cache_v3: ", s_cache_v3)
+#         print("结束: ", capacity)
 #     # 设置中文字体
 #     ch = font_manager.FontProperties(fname="/Library/Fonts/Arial Unicode.ttf")
 #     sns.set(style="whitegrid",font=ch.get_name())
-#     x = [5,10,15,20]
+#     x = [50, 100, 150, 200, 250, 300]
 #     data = {
 #         "proposed": s_cache_v1,
-#         "prediction-only": s_cache_v2
+#         "prediction-only": s_cache_v2,
+#         "experience": s_cache_v3
 #     }
-#     df = pd.DataFrame(data, index=x, columns=["proposed", "prediction-only"])
+#     df = pd.DataFrame(data, index=x, columns=["proposed", "prediction-only", "experience"])
 #     sns.lineplot(data=df, markers=True)
-#     plt.xlabel("数据量方差")
+#     plt.xlabel("缓存容量")
+#     plt.ylabel("系统消耗")
+#     plt.show()
+
+# -------------------------------用户数影响实验-----------------------
+# # 用户数的缓存实验
+#     s_cache_v1 = []
+#     s_cache_v2 = []
+#     s_cache_v3 = []
+#     task_t = 10
+#     user_n = 20
+#     capacity = 150
+#     gen = LSTMRequestGenerator(task_t=task_t, user_n=user_n, time_slot=100)
+#     for user_n in [5, 10, 15, 20, 25]:
+#         print("开始: ", user_n)
+#         user_n = user_n
+#         # 更新每个时隙任务请求数量
+#         gen.update_request(user_n)
+#         gen.update_popularity(user_n)
+#         cache_v1 = Cache(cache_capacity=capacity, task=gen.task, task_t=task_t, user_n=user_n)  # 所提缓存策略
+#         cache_v2 = Cache(cache_capacity=capacity, task=gen.task, task_t=task_t, user_n=user_n)  # 不考虑任务量
+#         cache_v3 = Cache(cache_capacity=capacity, task=gen.task, task_t=task_t, user_n=user_n)  # 不考虑流行度演变
+#         time_slot = 2
+#         # consumption_v1 = 0
+#         # consumption_v2 = 0
+#         # consumption_v3 = 0
+#         pre_train = 500
+#         episode = 1000
+#         process_n = 20
+#         for t in [45]:
+#             print("时隙开始")
+#             request_v = gen.request_v_t(t)
+#             request = gen.request_t(t)
+#             print("request_v: ", request_v)
+#             w1 = np.array([1] * user_n)
+#             w2 = np.array([0] * user_n)
+#             f_ue = np.array([2] * user_n)
+#             p_ue = np.array([0.3] * user_n)
+#             # ---------------基于请求模式和任务量-------------
+#             offload_t = []
+#             cache_v1.cache_update_size(offload_t, gen.request_v_t(t))
+#             cache_aside_v1 = OffloadingV5(request_v=request_v, request=request, cache=cache_v1.cache, user_n=user_n, f_mec=2*user_n, f_unit=1,
+#                                   f_ue=f_ue, p_ue=p_ue, bandwidth=user_n, w1=w1, w2=w2)
+#             dqn_v1 = DeepQNetwork(cache_aside_v1.action_n, cache_aside_v1.observation_n, learning_rate=0.001, reward_decay=0.9,
+#                            e_greedy=0.9, replace_target_iter=100, memory_size=2000, output_graph=True)
+#             train(cache_aside_v1, dqn_v1, 1, episode, pre_train)
+#             # 更新缓存
+#             # 最小消耗位置索引
+#             consumption_v1 = extract_last_n_average(cache_aside_v1.consumption_record, process_n)
+#             # ----------不考虑任务量----------
+#             cache_v2.cache_update(offload_t, gen.request_v_t(t))
+#             print("prediction: ", gen.request_v_t(t))
+#             cache_aside_v2 = OffloadingV5(request_v=request_v, request=request, cache=cache_v2.cache, user_n=user_n, f_mec=2*user_n, f_unit=1,
+#                                   f_ue=f_ue, p_ue=p_ue, bandwidth=user_n, w1=w1, w2=w2)
+#             dqn_v2 = DeepQNetwork(cache_aside_v2.action_n, cache_aside_v2.observation_n, learning_rate=0.001, reward_decay=0.9,
+#                            e_greedy=0.9, replace_target_iter=100, memory_size=2000, output_graph=True)
+#             train(cache_aside_v2, dqn_v2, 1, episode, pre_train)
+#             # 更新缓存
+#             # 最小消耗位置索引
+#             consumption_v2 = extract_last_n_average(cache_aside_v2.consumption_record, process_n)
+#             # ----------经验流行度----------
+#             cache_v3.cache_update_experience(offload_t, gen.popularity_t(t))
+#             print("popularity: ", gen.popularity_t(t))
+#             cache_aside_v3 = OffloadingV5(request_v=request_v, request=request, cache=cache_v3.cache, user_n=user_n,
+#                                           f_mec=2 * user_n, f_unit=1,
+#                                           f_ue=f_ue, p_ue=p_ue, bandwidth=user_n, w1=w1, w2=w2)
+#             dqn_v3 = DeepQNetwork(cache_aside_v3.action_n, cache_aside_v3.observation_n, learning_rate=0.001,
+#                                   reward_decay=0.9,
+#                                   e_greedy=0.9, replace_target_iter=100, memory_size=2000, output_graph=True)
+#             train(cache_aside_v3, dqn_v3, 1, episode, pre_train)
+#             # 更新缓存
+#             # 最小消耗位置索引
+#             consumption_v3 = extract_last_n_average(cache_aside_v3.consumption_record, process_n)
+#             print("时隙结束")
+#             print("cache_v1: ", cache_v1.cache)
+#             print("cache_v2: ", cache_v2.cache)
+#             print("cache_v3: ", cache_v3.cache)
+#         s_cache_v1.append(consumption_v1)
+#         s_cache_v2.append(consumption_v2)
+#         s_cache_v3.append(consumption_v3)
+#         print("s_cache_v1: ", s_cache_v1)
+#         print("s_cache_v2: ", s_cache_v2)
+#         print("s_cache_v3: ", s_cache_v3)
+#         print("结束: ", capacity)
+#     # 设置中文字体
+#     ch = font_manager.FontProperties(fname="/Library/Fonts/Arial Unicode.ttf")
+#     sns.set(style="whitegrid", font=ch.get_name())
+#     x = [5, 10, 15, 20, 25]
+#     data = {
+#         "proposed": s_cache_v1,
+#         "prediction-only": s_cache_v2,
+#         "experience": s_cache_v3
+#     }
+#     df = pd.DataFrame(data, index=x, columns=["proposed", "prediction-only", "experience"])
+#     sns.lineplot(data=df, markers=True)
+#     plt.xlabel("缓存容量")
 #     plt.ylabel("系统消耗")
 #     plt.show()

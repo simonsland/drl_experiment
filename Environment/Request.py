@@ -47,69 +47,84 @@ class LSTMRequestGenerator:
         self.user_n = user_n
         self.time_slot = time_slot
         self.task = self.task_generate()
-        self.task_cnt, self.request_v = self.request_v_generator()
-        self.request = self.request_generator()
-        self.popularity = self.popularity_generator()
+        self.popularity_mode = self.popularity_mode_generator()
+        self.request_v = self.request_v_generator(user_n)
+        self.request = self.request_generator(user_n)
+        self.popularity = self.popularity_generator(user_n)
 
     # 产生环境中的任务数据
-    def task_generate(self, data_size=30, sigma=15):
+    def task_generate(self):
         task = np.zeros([2, self.task_t], dtype=int)
         # 任务上传数据量
-        upload_data = np.random.normal(data_size, sigma, self.task_t)
+        upload_data = np.random.normal(30, 15, self.task_t)
         while sum(upload_data < 0):  # 确保生成的数据中不包含负值
-            upload_data = np.random.normal(data_size, sigma, self.task_t)
+            upload_data = np.random.normal(30, 15, self.task_t)
         print("传输量: ", upload_data)
         # 任务计算量
-        cpu_cycle = np.random.normal(100, 20, self.task_t)
+        cpu_cycle = np.random.normal(100, 40, self.task_t)
         while sum(cpu_cycle < 0):
-            cpu_cycle = np.random.normal(100, 20, self.task_t)
+            cpu_cycle = np.random.normal(100, 40, self.task_t)
         print("计算量: ", cpu_cycle)
         task[0, :] = upload_data
         task[1, :] = cpu_cycle
         return np.transpose(task)
 
-    def request_v_generator(self):
+    def popularity_mode_generator(self):
         x = np.linspace(0, self.time_slot, self.time_slot)
         cycle = self.time_slot / 10
         c = 2 * math.pi / cycle
         f = np.zeros([self.task_t, self.time_slot], dtype=float)
-        r = np.zeros([self.task_t, self.time_slot], dtype=int)
-        request = np.zeros([self.user_n, self.time_slot], dtype=int)
         for i in range(self.task_t):
             y = 0.3 * np.sin(c*(x+i*cycle/self.task_t)) + 0.5
             f[i, :] = y
             # plt.plot(x, y)
+        return f
+
+    def request_v_generator(self, user_n):
+        r = np.zeros([self.task_t, self.time_slot], dtype=int)
         for j in range(self.time_slot):
             for i in range(self.task_t):
-                r[i, j] = round(f[i, j] / sum(f[:, j]) * self.user_n)
+                r[i, j] = round(self.popularity_mode[i, j] / sum(self.popularity_mode[:, j]) * user_n)
+        request = np.zeros([user_n, self.time_slot], dtype=int)
         for j in range(self.time_slot):
             idx = 0
             for i in range(self.task_t):
-                if r[i, j] > 0:
+                if r[i, j] > 0 and idx < user_n:
                     s = idx
-                    e = idx + r[i, j] if (idx + r[i, j]) <= self.user_n else self.user_n
+                    e = idx + r[i, j] if (idx + r[i, j]) <= user_n else user_n
                     request[s:e, j] = i
                     idx = e
-        return np.transpose(r), np.transpose(request)
+        return np.transpose(request)
 
-    def request_generator(self):
-        request = np.zeros([self.time_slot, 2*self.user_n], dtype=int)
+    def request_generator(self, user_n):
+        request = np.zeros([self.time_slot, 2*user_n], dtype=int)
         for j in range(self.time_slot):
             request_v = self.request_v[j, :]
-            for i in range(self.user_n):
+            for i in range(user_n):
                 request[j, i*2:(i+1)*2] = self.task[request_v[i], :]
         return request
 
-    def popularity_generator(self):
+    def update_request(self, user_n):
+        self.request_v = self.request_v_generator(user_n)
+        self.request = self.request_generator(user_n)
+
+    def popularity_generator(self, user_n):
+        r = np.zeros([self.task_t, self.time_slot], dtype=int)
+        for j in range(self.time_slot):
+            for i in range(self.task_t):
+                r[i, j] = round(self.popularity_mode[i, j] / sum(self.popularity_mode[:, j]) * user_n)
         cnt_sum = np.zeros([self.time_slot, self.task_t], dtype=int)
         for i in range(self.time_slot):
             for j in range(self.task_t):
-                cnt_sum[i, j] = sum(self.task_cnt[0:i, j])
-        popularity = np.zeros([self.time_slot, self.task_t], dtype=float)
+                cnt_sum[i, j] = sum(r[j, 0:i+1])
+        popularity = np.zeros([self.time_slot, self.task_t], dtype=int)
         for i in range(self.time_slot):
             for j in range(self.task_t):
-                popularity[i, j] = cnt_sum[i, j] / sum(cnt_sum[i, :])
+                popularity[i, j] = user_n * cnt_sum[i, j] / sum(cnt_sum[i, :])
         return popularity
+
+    def update_popularity(self, user_n):
+        self.popularity = self.popularity_generator(user_n)
 
     def request_v_t(self, time):
         return self.request_v[time, :]

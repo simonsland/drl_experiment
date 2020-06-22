@@ -37,7 +37,7 @@ class OffloadingV1:
         self.offload_user = 0  # 当前卸载覆盖人数
         # 系统统计量
         self.consumption_record = []  # 系统消耗变化
-        self.consumption_record.append(self.local_consumption)
+        self.consumption_record.append(0)
         self.offload_record = []  # 系统卸载决策覆盖人数
 
     def reset(self):
@@ -81,7 +81,8 @@ class OffloadingV1:
             done = True
             self.observation[action] -= self.f_unit  # 还原一次操作
             self.offload_record.append(self.offload_user)
-            self.consumption_record.append(self.current_consumption)
+            self.consumption_record.append(self.local_consumption - self.current_consumption)
+            print(self.local_consumption, self.current_consumption)
         return self.observation, reward, done
 
     # 计算某状态的时延和功耗加权和

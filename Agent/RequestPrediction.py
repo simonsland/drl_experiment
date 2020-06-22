@@ -111,23 +111,3 @@ sns.lineplot(data=df)
 plt.xlabel("时隙")
 plt.ylabel("任务请求数量")
 plt.show()
-
-# trainScore = math.sqrt(mean_squared_error(trainY[0], trainPredict[:, 0]))
-# print('Train Score: %.2f RMSE' % (trainScore))
-# testScore = math.sqrt(mean_squared_error(testY[0], testPredict[:, 0]))
-# print('Test Score: %.2f RMSE' % (testScore))
-#
-# # shift train predictions for plotting
-# trainPredictPlot = np.empty_like(dataset)
-# trainPredictPlot[:, :] = np.nan
-# trainPredictPlot[look_back:len(trainPredict) + look_back, :] = trainPredict
-#
-# # shift test predictions for plotting
-# testPredictPlot = np.empty_like(dataset)
-# testPredictPlot[:, :] = np.nan
-# testPredictPlot[len(trainPredict) + (look_back * 2) + 1:len(dataset) - 1, :] = testPredict
-#
-# # plot baseline and predictions
-# plt.plot(scaler.inverse_transform(dataset))
-# plt.plot(trainPredictPlot)
-# plt.plot(testPredictPlot)
